@@ -6,9 +6,11 @@ namespace FileRenamer
     internal class VideoHelper : IDisposable
     {
         private FileInfo info { get; set; }
+        private Int32 sumMilisseconds { get; set; }
 
-        public VideoHelper(String filename)
+        public VideoHelper(string filename, Int32 sumMilisseconds)
         {
+            this.sumMilisseconds = sumMilisseconds;
             info = new FileInfo(filename);
         }
 
@@ -28,7 +30,7 @@ namespace FileRenamer
                 if (date > info.LastWriteTime)
                     date = info.LastWriteTime;
 
-                return date;
+                return date.AddMilliseconds(sumMilisseconds);
             }
         }
 
