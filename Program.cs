@@ -28,12 +28,21 @@ namespace FileRenamer
 
         private static String getNewName(String file, String format)
         {
-            using(var image = new ImageHelper(file))
+            using (var image = new ImageHelper(file))
             {
                 if (image.IsImage)
                 {
                     return image.DateTaken.ToString(format)
                         + image.Extension;
+                }
+            }
+
+            using (var video = new VideoHelper(file))
+            {
+                if (video.IsVideo)
+                {
+                    return video.DateTaken.ToString(format)
+                        + video.Extension;
                 }
             }
 

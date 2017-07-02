@@ -45,11 +45,26 @@ namespace FileRenamer
         {
             get
             {
-                var propertyItem = file.GetPropertyItem(36867);
-                var decoded = Encoding.UTF8.GetString(propertyItem.Value);
-                var dateTaken = regex.Replace(decoded, "-", 2);
+                try
+                {
+                    var propertyItem = file.GetPropertyItem(36867);
+                    var decoded = Encoding.UTF8.GetString(propertyItem.Value);
+                    var dateTaken = regex.Replace(decoded, "-", 2);
 
-                return DateTime.Parse(dateTaken);
+                    return DateTime.Parse(dateTaken);
+                }
+                catch (ArgumentException)
+                {
+                    var date = info.CreationTime;
+
+                    if (date > info.LastAccessTime)
+                        date = info.LastAccessTime;
+
+                    if (date > info.LastWriteTime)
+                        date = info.LastWriteTime;
+
+                    return date;
+                }
             }
         }
         
