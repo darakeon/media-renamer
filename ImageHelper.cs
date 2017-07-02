@@ -8,12 +8,8 @@ namespace FileRenamer
 {
     class ImageHelper : IDisposable
     {
-        private Int32 sumMilisseconds { get; set; }
-
-        public ImageHelper(String path, Int32 sumMilisseconds)
+        public ImageHelper(String path)
         {
-            this.sumMilisseconds = sumMilisseconds;
-
             info = new FileInfo(path);
             read = info.OpenRead();
 
@@ -55,7 +51,7 @@ namespace FileRenamer
                     var decoded = Encoding.UTF8.GetString(propertyItem.Value);
                     var dateTaken = regex.Replace(decoded, "-", 2);
 
-                    return DateTime.Parse(dateTaken).AddMilliseconds(sumMilisseconds);
+                    return DateTime.Parse(dateTaken);
                 }
                 catch (ArgumentException)
                 {
@@ -67,7 +63,7 @@ namespace FileRenamer
                     if (date > info.LastWriteTime)
                         date = info.LastWriteTime;
 
-                    return date.AddMilliseconds(sumMilisseconds);
+                    return date;
                 }
             }
         }

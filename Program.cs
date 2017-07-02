@@ -13,30 +13,22 @@ namespace FileRenamer
 
             foreach (var file in Directory.GetFiles(path))
             {
-                String newName = null;
+                var newName = getNewName(file, format);
 
-                for (var s = 0; newName == null; s++)
+                if (newName != null)
                 {
-                    newName = getNewName(file, format, s);
+                    var newCompleteName = Path.Combine(path, newName);
 
-                    if (newName != "")
-                    {
-                        var newCompleteName = Path.Combine(path, newName);
-
-                        if (File.Exists(newCompleteName))
-                            newName = null;
-                        else
-                            File.Move(file, newCompleteName);
-                    }
+                    File.Move(file, newCompleteName);
                 }
 
             }
             
         }
 
-        private static String getNewName(String file, String format, Int32 sumMilisseconds)
+        private static String getNewName(String file, String format)
         {
-            using (var image = new ImageHelper(file, sumMilisseconds))
+            using (var image = new ImageHelper(file))
             {
                 if (image.IsImage)
                 {
@@ -45,7 +37,7 @@ namespace FileRenamer
                 }
             }
 
-            using (var video = new VideoHelper(file, sumMilisseconds))
+            using (var video = new VideoHelper(file))
             {
                 if (video.IsVideo)
                 {
@@ -54,7 +46,7 @@ namespace FileRenamer
                 }
             }
 
-            return "";
+            return null;
         }
     }
 }
