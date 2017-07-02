@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using System.IO;
 
 namespace FileRenamer
@@ -12,15 +13,31 @@ namespace FileRenamer
 
             foreach (var file in Directory.GetFiles(path))
             {
-                var info = new FileInfo(file);
+                var newName = getNewName(file, format);
 
-                var newName = info.LastWriteTime.ToString(format);
+                if (newName != null)
+                {
+                    var newCompleteName = Path.Combine(path, newName);
 
-                var newCompleteName = Path.Combine(path, newName + info.Extension);
+                    File.Move(file, newCompleteName);
+                }
 
-                File.Move(file, newCompleteName);
-             }
+            }
             
+        }
+
+        private static String getNewName(String file, String format)
+        {
+            using(var image = new ImageHelper(file))
+            {
+                if (image.IsImage)
+                {
+                    return image.DateTaken.ToString(format)
+                        + image.Extension;
+                }
+            }
+
+            return null;
         }
     }
 }
