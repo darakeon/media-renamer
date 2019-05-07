@@ -8,11 +8,11 @@ namespace FileRenamer
 {
     class ImageHelper : IDisposable
     {
-        private Int32 sumMilisseconds { get; set; }
+        private Int32 sumMilliseconds { get; }
 
-        public ImageHelper(String path, Int32 sumMilisseconds)
+        public ImageHelper(String path, Int32 sumMilliseconds)
         {
-            this.sumMilisseconds = sumMilisseconds;
+            this.sumMilliseconds = sumMilliseconds;
 
             info = new FileInfo(path);
             read = info.OpenRead();
@@ -28,61 +28,54 @@ namespace FileRenamer
             }
         }
 
-
-
         private static readonly Regex regex = new Regex(":");
 
-        public Boolean IsImage { get; private set; }
+        public Boolean IsImage { get; }
 
-        private FileInfo info { get; set; }
-        private FileStream read { get; set; }
-        private Image file { get; set; }
+        private FileInfo info { get; }
+        private FileStream read { get; }
+        private Image file { get; }
 
+        public String Extension => info.Extension;
 
+        public DateTime? DateTaken =>
+	        getDate()?.AddMilliseconds(sumMilliseconds);
 
-        public String Extension
+        private DateTime? getDate()
         {
-            get { return info.Extension; }
+	        var date = DateByName.GetFromImage(info);
+
+	        try
+			{
+		        var propertyItem = file.GetPropertyItem(36867);
+		        var decoded = Encoding.UTF8.GetString(propertyItem.Value);
+		        var dateTakenText = regex.Replace(decoded, "-", 2);
+
+		        var dateTaken = DateTime.Parse(dateTakenText);
+
+		        return date.HasValue 
+		            && date.Value.AddDays(1) < dateTaken 
+						? date 
+						: dateTaken;
+			}
+	        catch (ArgumentException)
+	        {
+		        date = info.CreationTime;
+
+		        if (date > info.LastAccessTime)
+			        date = info.LastAccessTime;
+
+		        if (date > info.LastWriteTime)
+			        date = info.LastWriteTime;
+
+		        return date;
+	        }
         }
 
-        public DateTime DateTaken
-        {
-            get
-            {
-                try
-                {
-                    var propertyItem = file.GetPropertyItem(36867);
-                    var decoded = Encoding.UTF8.GetString(propertyItem.Value);
-                    var dateTaken = regex.Replace(decoded, "-", 2);
-
-                    return DateTime.Parse(dateTaken).AddMilliseconds(sumMilisseconds);
-                }
-                catch (ArgumentException)
-                {
-                    var date = info.CreationTime;
-
-                    if (date > info.LastAccessTime)
-                        date = info.LastAccessTime;
-
-                    if (date > info.LastWriteTime)
-                        date = info.LastWriteTime;
-
-                    return date.AddMilliseconds(sumMilisseconds);
-                }
-            }
-        }
-        
-
-        
         public void Dispose()
         {
-            if (read != null)
-                read.Dispose();
-
-            if (file != null)
-                file.Dispose();
+	        read?.Dispose();
+	        file?.Dispose();
         }
-
-
     }
 }

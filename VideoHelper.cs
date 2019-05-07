@@ -5,12 +5,12 @@ namespace FileRenamer
 {
     internal class VideoHelper : IDisposable
     {
-        private FileInfo info { get; set; }
-        private Int32 sumMilisseconds { get; set; }
+        private FileInfo info { get; }
+        private Int32 sumMilliseconds { get; }
 
-        public VideoHelper(string filename, Int32 sumMilisseconds)
+        public VideoHelper(string filename, Int32 sumMilliseconds)
         {
-            this.sumMilisseconds = sumMilisseconds;
+            this.sumMilliseconds = sumMilliseconds;
             info = new FileInfo(filename);
         }
 
@@ -18,30 +18,31 @@ namespace FileRenamer
         {
         }
 
-        public DateTime DateTaken
+        public DateTime? DateTaken =>
+	        getDate()?.AddMilliseconds(sumMilliseconds);
+
+        private DateTime? getDate()
         {
-            get
-            {
-                var date = info.CreationTime;
+            var date = DateByName.GetFromVideo(info);
 
-                if (date > info.LastAccessTime)
-                    date = info.LastAccessTime;
+			if (date != null)
+	            return date;
 
-                if (date > info.LastWriteTime)
-                    date = info.LastWriteTime;
+            date = info.CreationTime;
 
-                return date.AddMilliseconds(sumMilisseconds);
-            }
+            if (date > info.LastAccessTime)
+	            date = info.LastAccessTime;
+
+            if (date > info.LastWriteTime)
+	            date = info.LastWriteTime;
+
+            return date;
         }
 
-        public String Extension
-        {
-            get { return info.Extension; }
-        }
+        public String Extension => info.Extension;
 
-        public Boolean IsVideo
-        {
-            get { return info.Extension == ".mp4"; }
-        }
+        public Boolean IsVideo =>
+	        info.Extension == ".mp4"
+	        || info.Extension == ".3gp";
     }
 }

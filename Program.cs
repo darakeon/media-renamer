@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.IO;
+using System.Linq;
 
 namespace FileRenamer
 {
@@ -11,7 +12,14 @@ namespace FileRenamer
             var path = ConfigurationManager.AppSettings["Path"];
             var format = ConfigurationManager.AppSettings["Format"];
 
-            foreach (var file in Directory.GetFiles(path))
+            var files = Directory.GetFiles(path)
+	            .OrderBy(n => n).ToList();
+
+            var newDir = Path.Combine(path, "NAMED");
+            if (!Directory.Exists(newDir))
+	            Directory.CreateDirectory(newDir);
+
+            foreach (var file in files)
             {
                 String newName = null;
 
@@ -19,37 +27,47 @@ namespace FileRenamer
                 {
                     newName = getNewName(file, format, s);
 
-                    if (newName != "")
-                    {
-                        var newCompleteName = Path.Combine(path, newName);
+                    if (newName == "") continue;
 
-                        if (File.Exists(newCompleteName))
-                            newName = null;
-                        else
-                            File.Move(file, newCompleteName);
-                    }
+					var newCompleteName = Path.Combine(newDir, newName);
+
+                    if (File.Exists(newCompleteName))
+	                    newName = null;
+                    else
+	                    File.Move(file, newCompleteName);
                 }
 
+				Console.WriteLine($"{files.IndexOf(file)}/{files.Count}");
             }
             
         }
 
-        private static String getNewName(String file, String format, Int32 sumMilisseconds)
+        private static String getNewName(String file, String format, Int32 sumMilliseconds)
         {
-            using (var image = new ImageHelper(file, sumMilisseconds))
+            using (var image = new ImageHelper(file, sumMilliseconds))
             {
                 if (image.IsImage)
                 {
-                    return image.DateTaken.ToString(format)
+	                var date = image.DateTaken;
+
+	                if (date == null)
+		                return "";
+
+					return date.Value.ToString(format)
                         + image.Extension;
                 }
             }
 
-            using (var video = new VideoHelper(file, sumMilisseconds))
+            using (var video = new VideoHelper(file, sumMilliseconds))
             {
                 if (video.IsVideo)
                 {
-                    return video.DateTaken.ToString(format)
+	                var date = video.DateTaken;
+
+	                if (date == null)
+		                return "";
+
+                    return date.Value.ToString(format)
                         + video.Extension;
                 }
             }
