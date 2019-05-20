@@ -6,42 +6,32 @@ using System.Text.RegularExpressions;
 
 namespace FileRenamer
 {
-    class ImageHelper : IDisposable
+    class ImageHelper : MediaHelper
     {
-        private Int32 sumMilliseconds { get; }
-
-        public ImageHelper(String path, Int32 sumMilliseconds)
+        public ImageHelper(String path, Int32 addCounter)
+			: base(path, addCounter)
         {
-            this.sumMilliseconds = sumMilliseconds;
-
-            info = new FileInfo(path);
             read = info.OpenRead();
 
             try
             {
                 file = Image.FromStream(read, false, false);
-                IsImage = true;
+                isRightType = true;
             }
             catch (ArgumentException)
             {
-                IsImage = false;
+	            isRightType = false;
             }
         }
 
         private static readonly Regex regex = new Regex(":");
 
-        public Boolean IsImage { get; }
+        protected override Boolean isRightType { get; }
 
-        private FileInfo info { get; }
         private FileStream read { get; }
         private Image file { get; }
 
-        public String Extension => info.Extension;
-
-        public DateTime? DateTaken =>
-	        getDate()?.AddMilliseconds(sumMilliseconds);
-
-        private DateTime? getDate()
+        protected override DateTime? getDate()
         {
 	        var date = DateByName.GetFromImage(info);
 
@@ -60,19 +50,11 @@ namespace FileRenamer
 			}
 	        catch (ArgumentException)
 	        {
-		        date = info.CreationTime;
-
-		        if (date > info.LastAccessTime)
-			        date = info.LastAccessTime;
-
-		        if (date > info.LastWriteTime)
-			        date = info.LastWriteTime;
-
-		        return date;
+		        return getDateFromInfo();
 	        }
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
 	        read?.Dispose();
 	        file?.Dispose();

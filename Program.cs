@@ -11,7 +11,6 @@ namespace FileRenamer
 		{
 			var origin = ConfigurationManager.AppSettings["Origin"];
 			var destiny = ConfigurationManager.AppSettings["Destiny"];
-			var format = ConfigurationManager.AppSettings["Format"];
 
 			var files = Directory.GetFiles(origin)
 				.OrderBy(n => n).ToList();
@@ -22,7 +21,7 @@ namespace FileRenamer
 
 				for (var s = 0; newName == null; s++)
 				{
-					newName = getNewName(file, format, s);
+					newName = MediaHelper.GetNewName(file, s);
 
 					if (newName == "") continue;
 
@@ -36,40 +35,6 @@ namespace FileRenamer
 
 				Console.WriteLine($"{files.IndexOf(file)}/{files.Count}");
 			}
-
-		}
-
-		private static String getNewName(String file, String format, Int32 sumMilliseconds)
-		{
-			using (var image = new ImageHelper(file, sumMilliseconds))
-			{
-				if (image.IsImage)
-				{
-					var date = image.DateTaken;
-
-					if (date == null)
-						return "";
-
-					return date.Value.ToString(format)
-					       + image.Extension;
-				}
-			}
-
-			using (var video = new VideoHelper(file, sumMilliseconds))
-			{
-				if (video.IsVideo)
-				{
-					var date = video.DateTaken;
-
-					if (date == null)
-						return "";
-
-					return date.Value.ToString(format)
-					       + video.Extension;
-				}
-			}
-
-			return "";
 		}
 	}
 }

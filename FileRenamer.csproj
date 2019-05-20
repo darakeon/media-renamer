@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="DateByName.cs" />
     <Compile Include="ImageHelper.cs" />
+    <Compile Include="MediaHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VideoHelper.cs" />
