@@ -44,9 +44,7 @@ namespace FileRenamer
 
 			var date = DateTaken.Value;
 
-			var format = date == date.Date
-				? "yyyy-MM-dd_HH-mm-ss_fff"
-				: "yyyy-MM-dd";
+			var format = getFormat(date);
 
 			var name = DateTaken.Value.ToString(format);
 
@@ -54,6 +52,21 @@ namespace FileRenamer
 				name += $"_{addCounter}";
 
 			return name + Extension;
+		}
+
+		private static String getFormat(DateTime date)
+		{
+			if (date.Millisecond != 0)
+			{
+				return "yyyy-MM-dd_HH-mm-ss_fff";
+			}
+
+			if (date.Second != 0 || date.Minute != 0 || date.Hour != 0)
+			{
+				return "yyyy-MM-dd_HH-mm-ss";
+			}
+
+			return "yyyy-MM-dd";
 		}
 
 		internal static String GetNewName(String file, Int32 sumMilliseconds)
