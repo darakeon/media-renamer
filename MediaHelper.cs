@@ -7,8 +7,6 @@ namespace FileRenamer
 	{
 		public abstract void Dispose();
 
-		protected abstract Boolean isRightType { get; }
-
 		protected FileInfo info { get; }
 		private Int32 addCounter { get; }
 
@@ -73,7 +71,7 @@ namespace FileRenamer
 		{
 			using (var media = new ImageHelper(file, sumMilliseconds))
 			{
-				if (media.isRightType)
+				if (media.IsRightType)
 				{
 					return media.getNewName();
 				}
@@ -81,7 +79,7 @@ namespace FileRenamer
 
 			using (var media = new VideoHelper(file, sumMilliseconds))
 			{
-				if (media.isRightType)
+				if (media.IsRightType)
 				{
 					return media.getNewName();
 				}

@@ -13,7 +13,7 @@ namespace FileRenamer
 			       ?? getDateFromInfo();
 		}
 
-		protected override Boolean isRightType =>
+		internal virtual Boolean IsRightType =>
 			Extension == ".mp4"
 			|| Extension == ".3gp";
 

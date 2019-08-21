@@ -16,17 +16,17 @@ namespace FileRenamer
             try
             {
                 file = Image.FromStream(read, false, false);
-                isRightType = true;
+                IsRightType = true;
             }
             catch (ArgumentException)
             {
-	            isRightType = false;
+	            IsRightType = false;
             }
         }
 
         private static readonly Regex regex = new Regex(":");
 
-        protected override Boolean isRightType { get; }
+        internal virtual Boolean IsRightType { get; }
 
         private FileStream read { get; }
         private Image file { get; }

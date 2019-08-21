@@ -2,16 +2,19 @@
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace FileRenamer
 {
 	class Program
 	{
-		public static void Main(string[] args)
-		{
-			var origin = ConfigurationManager.AppSettings["Origin"];
-			var destiny = ConfigurationManager.AppSettings["Destiny"];
+        static readonly String origin = ConfigurationManager.AppSettings["Origin"];
+        static readonly String destiny = ConfigurationManager.AppSettings["Destiny"];
 
+        static Regex regex = new Regex(@"(\d{4})\-(\d{2}).*");
+
+        public static void Main(string[] args)
+		{
 			var files = Directory.GetFiles(origin)
 				.OrderBy(n => n).ToList();
 
@@ -25,16 +28,30 @@ namespace FileRenamer
 
 					if (newName == "") continue;
 
+					newName = regex.Replace(newName, @"$1\$2\$0");
+
 					var newCompleteName = Path.Combine(destiny, newName);
 
 					if (File.Exists(newCompleteName))
+					{
 						newName = null;
-					else
-						File.Move(file, newCompleteName);
+						continue;
+					}
+
+					var dir = Directory
+						.GetParent(newCompleteName)
+						.FullName;
+
+					if (!Directory.Exists(dir))
+						Directory.CreateDirectory(dir);
+
+					File.Move(file, newCompleteName);
 				}
 
-				Console.WriteLine($"{files.IndexOf(file)}/{files.Count}");
+				Console.WriteLine($"{files.IndexOf(file)+1}/{files.Count}");
 			}
+
+			Console.ReadLine();
 		}
 	}
 }
